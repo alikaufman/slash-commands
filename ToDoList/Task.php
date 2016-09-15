@@ -3,6 +3,10 @@
 
 class Task
 {
+    const STATUS_NEW = 'new';
+    const STATUS_IN_PROGRESS = 'in progress';
+    const STATUS_COMPLETED = 'completed';
+
     /** @var  string */
     private $name;
     
@@ -17,11 +21,17 @@ class Task
     
     /** @var string */
     private $description;
+
+    private static $validStatuses = [
+        self::STATUS_NEW,
+        self::STATUS_IN_PROGRESS,
+        self::STATUS_COMPLETED,
+    ];
     
     public function __construct($name)
     {
         $this->name = $name;
-        $this->status = 'backlog';
+        $this->status = self::STATUS_NEW;
         $this->createdAt = new DateTime();
     }
 
@@ -52,7 +62,7 @@ class Task
     /**
      * @param DateTime $dueDate
      */
-    public function setDueDate($dueDate)
+    public function setDueDate(DateTime $dueDate)
     {
         $this->dueDate = $dueDate;
     }
@@ -70,7 +80,9 @@ class Task
      */
     public function setStatus($status)
     {
-        $this->status = $status;
+        if ($this->isValidStatus($status)) {
+            $this->status = $status;
+        }
     }
 
     /**
@@ -94,26 +106,24 @@ class Task
      */
     public function __toString()
     {
-        return sprintf("Task: %s\nCreated %s\nDue: %s\nStatus: %s\nDescription: %s",
+        $dueDate = $this->dueDate ? $this->dueDate->format('D, M d Y'): 'n/a';
+        $description = $this->description ?: 'n/a';
+        
+        return sprintf("Task: %s\nCreated: %s\nDue: %s\nStatus: %s\nDescription: %s",
                 $this->name,
-                $this->createdAt->format('M-d-Y'),
-                $this->dueDate->format('M-d-Y'),
+                $this->createdAt->format('D, M d Y'),
+                $dueDate,
                 $this->status,
-                $this->description
+                $description
             );
     }
 
     /**
-     * @return array
+     * @param string $status
+     * @return bool
      */
-    public function __toArray()
+    private function isValidStatus($status)
     {
-        return [
-            "name" => $this->name,
-            "createdAt" => $this->createdAt,
-            "dueDate" => $this->dueDate,
-            "status" => $this->status,
-            "description" => $this->description,
-        ];
+        return in_array($status, self::$validStatuses);
     }
 }
