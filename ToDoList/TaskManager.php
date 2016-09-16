@@ -78,7 +78,7 @@ class TaskManager
         $statement->bind_result($id, $name, $createdAt, $dueDate, $status, $description);
         
         $rows = [];
-        while ($statement->fetch()) {
+        while ($row = $statement->fetch()) {
             $rows[] = [
                 'id' => $id,
                 'name' => $name,
@@ -117,7 +117,8 @@ SQL;
     private function getFindAllQuery()
     {
         return <<<SQL
-SELECT name
+SELECT id,
+name
 FROM tasks
 SQL;
     }

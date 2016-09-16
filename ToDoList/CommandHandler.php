@@ -9,15 +9,13 @@ class CommandHandler
     /** @var TaskManager  */
     private $taskManager;
 
-    static $tokens = [
-        '7DDbqpU6FtNv7FmvhpdH5r3V',
-        'pTKUaEv3nOgPAxrpj5FHEgiw',
-        'kmTu4bSi8AaKlSYPklnkCw7K',
-    ];
-
-    public function __construct(TaskManager $taskManager)
+    /** @var  array */
+    private $tokens;
+    
+    public function __construct(TaskManager $taskManager, $tokens)
     {
         $this->taskManager = $taskManager;
+        $this->tokens = $tokens;
     }
 
     public function handleCommand($token, $command, $text)
@@ -26,7 +24,11 @@ class CommandHandler
         
         switch ($command) {
             case self::COMMAND_ADD:
-                echo $this->taskManager->addTask($text);
+                if ($this->taskManager->addTask($text))
+                    echo "Added new task [$text]";
+                else {
+                    echo "Task not added";
+                }
                 break;
             case self::COMMAND_SHOW_ALL:
                 $this->echoAllTasks($this->taskManager->showAll());
@@ -46,7 +48,10 @@ class CommandHandler
     {
         if ($rows) {
             foreach ($rows as $row) {
-                echo $row[0] . "\n";
+                echo sprintf("%d. %s\n",
+                    $row[0],
+                    $row[1]
+                );
             }
         } else {
             echo 'None found';
@@ -79,7 +84,7 @@ class CommandHandler
      */
     private function validateToken($token)
     {
-        if (!in_array($token, self::$tokens)) {
+        if (!in_array($token, $this->tokens)) {
             die("Token does not match");
         }
     }
